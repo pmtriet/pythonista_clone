@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pythonista_clone/setting.dart';
 
 void main() {
   runApp(const MyApp());
@@ -127,12 +128,46 @@ class HomePage extends StatelessWidget {
                 // Add your action here
               },
             ),
+            const Spacer(),
+            ListTile(
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyListView()),
+                );
+              },
+            ),
           ],
         ),
       ),
-      body: const Center(
-        child: Text('Home Page Content'),
-      ),
+      body: Center(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text("New file"),
+          ),
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text("Open recent"),
+          ),
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text("Documentation"),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          const Text("Community Forum"),
+          const SizedBox(
+            height: 20,
+          ),
+          const Text("Release Notes"),
+        ],
+      )),
     );
   }
 }
