@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const Setting());
-}
+
 
 class Setting extends StatefulWidget {
   const Setting({super.key});

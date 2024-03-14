@@ -151,7 +151,7 @@ class HomePage extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CompilePython()),
+                MaterialPageRoute(builder: (context) => MainCompilePython()),
               );
             },
             child: const Text("New file"),

@@ -140,10 +140,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-void main() {
-  runApp(const CompilePython());
-}
-
 class CompilePython extends StatelessWidget {
   const CompilePython({super.key});
 
@@ -203,17 +199,17 @@ class _MainCompilePython extends State<MainCompilePython> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Python Compiler'),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            // FocusScope.of(context).unfocus();
-            TextEditingController().clear();
-            Navigator.pop(context);
-          },
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(
+        //     Icons.arrow_back,
+        //     color: Colors.black,
+        //   ),
+        //   onPressed: () {
+        //     // FocusScope.of(context).unfocus();
+        //     TextEditingController().clear();
+        //     Navigator.pop(context);
+        //   },
+        // ),
       ),
       body: Column(
         children: [
