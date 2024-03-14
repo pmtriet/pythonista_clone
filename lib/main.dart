@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pythonista_clone/compile_Python.dart';
 import 'package:pythonista_clone/setting.dart';
 
 void main() {
@@ -147,7 +148,12 @@ class HomePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CompilePython()),
+              );
+            },
             child: const Text("New file"),
           ),
           ElevatedButton(
