@@ -139,6 +139,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class CompilePython extends StatelessWidget {
   const CompilePython({super.key});
@@ -194,6 +196,25 @@ class _MainCompilePython extends State<MainCompilePython> {
     }
   }
 
+  Future<void> createAndWriteToFile(String fileName, String content) async {
+  try {
+    // Lấy đường dẫn thư mục lưu trữ tài liệu dựa trên hệ điều hành
+    Directory directory = await getApplicationDocumentsDirectory();
+    String filePath = '${directory.path}/$fileName';
+
+    // Tạo file mới
+    File file = File(filePath);
+
+    // Ghi nội dung vào file
+    await file.writeAsString(content);
+
+    print('File đã được tạo và lưu tại: $filePath');
+  } catch (e) {
+    print('Lỗi khi tạo và lưu file: $e');
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,6 +231,30 @@ class _MainCompilePython extends State<MainCompilePython> {
         //     Navigator.pop(context);
         //   },
         // ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.play_arrow,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              // do something
+              _compileCode(_inputController.text);
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.save,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              // do something
+              createAndWriteToFile('example.py', _inputController.text);
+
+            },
+          ),
+          
+        ],
       ),
       body: Column(
         children: [
@@ -227,12 +272,7 @@ class _MainCompilePython extends State<MainCompilePython> {
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              _compileCode(_inputController.text);
-            },
-            child: const Text('Biên dịch'),
-          ),
+          
           const SizedBox(height: 20),
           const Text('Output:'),
           Text(_output),
