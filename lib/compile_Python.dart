@@ -166,7 +166,7 @@ class _MainCompilePython extends State<MainCompilePython> {
   String _error = '';
 
   Future<void> _compileCode(String code) async {
-    final url = Uri.parse('http://127.0.0.1:5000/compile');
+    final url = Uri.parse('http://10.0.2.2:5000/compile');
 
     final response = await http.post(
       url,
