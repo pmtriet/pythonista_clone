@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pythonista_clone/compile_Python.dart';
+import 'package:pythonista_clone/save_file_diaglog.dart';
 import 'package:pythonista_clone/setting.dart';
 
 void main() {
@@ -43,6 +44,10 @@ class HomePage extends StatelessWidget {
             ),
             onPressed: () {
               // do something
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SaveFileDialog()),
+                );
             },
           ),
           IconButton(

@@ -142,6 +142,9 @@ import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
+import 'package:pythonista_clone/save_file_diaglog.dart';
+import 'package:file_picker/file_picker.dart';
+
 class CompilePython extends StatelessWidget {
   const CompilePython({super.key});
 
@@ -162,6 +165,7 @@ class MainCompilePython extends StatefulWidget {
 
 class _MainCompilePython extends State<MainCompilePython> {
   final TextEditingController _inputController = TextEditingController();
+  final TextEditingController _fileNameController = TextEditingController();
   String _output = '';
   String _error = '';
 
@@ -196,24 +200,129 @@ class _MainCompilePython extends State<MainCompilePython> {
     }
   }
 
-  Future<void> createAndWriteToFile(String fileName, String content) async {
-  try {
-    // Lấy đường dẫn thư mục lưu trữ tài liệu dựa trên hệ điều hành
-    Directory directory = await getApplicationDocumentsDirectory();
-    String filePath = '${directory.path}/$fileName';
+  // Future<void> createAndWriteToFile(String fileName, String content) async {
+  //   try {
+  //     // Lấy đường dẫn thư mục lưu trữ tài liệu dựa trên hệ điều hành
+  //     Directory directory = await getApplicationDocumentsDirectory();
+  //     String filePath = '${directory.path}/$fileName';
 
-    // Tạo file mới
-    File file = File(filePath);
+  //     // Tạo file mới
+  //     File file = File(filePath);
 
-    // Ghi nội dung vào file
-    await file.writeAsString(content);
+  //     // Ghi nội dung vào file
+  //     await file.writeAsString(content);
 
-    print('File đã được tạo và lưu tại: $filePath');
-  } catch (e) {
-    print('Lỗi khi tạo và lưu file: $e');
+  //     print('File đã được tạo và lưu tại: $filePath');
+  //   } catch (e) {
+  //     print('Lỗi khi tạo và lưu file: $e');
+  //   }
+  // }
+
+  Future<String?> pickDirectory(BuildContext context) async {
+    String? directoryPath;
+    try {
+      directoryPath = await FilePicker.platform.getDirectoryPath();
+    } catch (e) {
+      print('Lỗi khi chọn thư mục: $e');
+    }
+    return directoryPath;
   }
-}
 
+//   Future<void> saveToFileInDirectory(String directoryPath, String fileName, String content) async {
+//   try {
+//     // Tạo đường dẫn đến file trong thư mục được chọn
+//     String filePath = '$directoryPath/$fileName';
+
+//     // Tạo file mới hoặc ghi đè lên file đã tồn tại
+//     File file = File(filePath);
+//     await file.writeAsString(content);
+
+//     print('Dữ liệu đã được lưu vào file: $filePath');
+//   } catch (e) {
+//     print('Lỗi khi lưu vào file: $e');
+//   }
+// }
+
+  void _saveFile(BuildContext context) async {
+    TextEditingController fileNameController = TextEditingController();
+
+    // FilePickerResult? result = await FilePicker.platform.pickFiles(
+    //   type: FileType.custom,
+    //   allowedExtensions: ['py'],
+    // );
+    String? result = await pickDirectory(context);
+    String filePath = '$result/$fileNameController.text';
+
+    if (result != null) {
+      // PlatformFile file = result.files.first;
+      // String? filePath = await FilePicker.platform.getDirectoryPath();
+
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Enter file name'),
+            content: TextField(
+              controller: fileNameController,
+              decoration: const InputDecoration(hintText: 'File Name'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(fileNameController.text);
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+
+      File newFile = File(filePath);
+
+      if (await newFile.exists()) {
+        bool replace = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('File already exists'),
+              content: const Text('Do you want to replace the existing file?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('Yes'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text('No'),
+                ),
+              ],
+            );
+          },
+        );
+
+        if (!replace) {
+          return;
+        }
+      }
+
+      String fileName = fileNameController.text;
+      print('File Name: $fileName');
+
+      // Ghi file
+      await newFile.writeAsString(_inputController.text);
+      print(newFile.path);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('File saved successfully!'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -249,11 +358,22 @@ class _MainCompilePython extends State<MainCompilePython> {
             ),
             onPressed: () {
               // do something
-              createAndWriteToFile('example.py', _inputController.text);
-
+              // createAndWriteToFile('example.py', _inputController.text);
+              // showDialog(
+              //   context: context,
+              //   builder: (BuildContext context) {
+              //     return SaveFileDialog();
+              //   },
+              // );
+              // String? directoryPath = await pickDirectory(context);
+              // if (directoryPath != null) {
+              //   String fileName = "example.txt";
+              //   String content = _inputController.text;
+              //   // saveToFileInDirectory(directoryPath, fileName, content);
+              // }
+              _saveFile(context);
             },
           ),
-          
         ],
       ),
       body: Column(
@@ -272,7 +392,6 @@ class _MainCompilePython extends State<MainCompilePython> {
               ),
             ),
           ),
-          
           const SizedBox(height: 20),
           const Text('Output:'),
           Text(_output),
