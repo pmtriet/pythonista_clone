@@ -250,35 +250,43 @@ class _MainCompilePython extends State<MainCompilePython> {
     //   type: FileType.custom,
     //   allowedExtensions: ['py'],
     // );
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter file name'),
+          content: TextField(
+            controller: fileNameController,
+            decoration: const InputDecoration(hintText: 'File Name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(fileNameController.text);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
     String? result = await pickDirectory(context);
-    String filePath = '$result/$fileNameController.text';
+    print("result: $result");
+
+    String fileName = fileNameController.text;
+    print('File Name: $fileName');
+
+    String filePath = '$result/$fileName';
 
     if (result != null) {
       // PlatformFile file = result.files.first;
       // String? filePath = await FilePicker.platform.getDirectoryPath();
 
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Enter file name'),
-            content: TextField(
-              controller: fileNameController,
-              decoration: const InputDecoration(hintText: 'File Name'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(fileNameController.text);
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-
       File newFile = File(filePath);
+      print("filePath: $filePath");
+
+      print("Exist: ${newFile.exists()}");
 
       if (await newFile.exists()) {
         bool replace = await showDialog(
@@ -309,9 +317,6 @@ class _MainCompilePython extends State<MainCompilePython> {
           return;
         }
       }
-
-      String fileName = fileNameController.text;
-      print('File Name: $fileName');
 
       // Ghi file
       await newFile.writeAsString(_inputController.text);

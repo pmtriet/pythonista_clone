@@ -1,114 +1,90 @@
+import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:file_picker/file_picker.dart';
 
-class SaveFileDialog extends StatelessWidget {
+class SaveFileDialog {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/counter.txt');
+  }
+
+  Future<int> readCounter() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file
+      final contents = await file.readAsString();
+
+      return int.parse(contents);
+    } catch (e) {
+      // If encountering an error, return 0
+      return 0;
+    }
+  }
+
+  Future<File> writeCounter(int counter) async {
+    final file = await _localFile;
+
+    // Write the file
+    return file.writeAsString('$counter');
+  }
+}
+
+class FlutterDemo extends StatefulWidget {
+  const FlutterDemo({super.key, required this.storage});
+
+  final SaveFileDialog storage;
+
+  @override
+  State<FlutterDemo> createState() => _FlutterDemoState();
+}
+
+class _FlutterDemoState extends State<FlutterDemo> {
+  int _counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.storage.readCounter().then((value) {
+      setState(() {
+        _counter = value;
+      });
+    });
+  }
+
+  Future<File> _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+
+    // Write the variable as a string to the file.
+    return widget.storage.writeCounter(_counter);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Lưu File'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.save),
-              onPressed: () async {
-                final fileName = await _promptFileName(context);
-                if (fileName != null && fileName.isNotEmpty) {
-                  final savePath = await _pickSaveLocation();
-                  if (savePath != null) {
-                    final filePath = '$savePath/$fileName.txt';
-                    final file = File(filePath);
-                    if (await file.exists()) {
-                      final replace = await _promptReplaceExistingFile(context);
-                      if (!replace) return;
-                    }
-                    await _saveFile(
-                        file, 'Nội dung file'); // Giả sử lưu nội dung này
-                  }
-                }
-              },
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Reading and Writing Files'),
+      ),
+      body: Center(
+        child: Text(
+          'Button tapped $_counter time${_counter == 1 ? '' : 's'}.',
         ),
-        body: Center(
-          child: Text('Nhấn vào icon lưu trên AppBar để bắt đầu'),
-        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
     );
   }
-}
-
-Future<String?> _promptFileName(BuildContext context) async {
-  String? fileName;
-  return showDialog<String>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Nhập tên file'),
-          content: TextField(
-            onChanged: (value) {
-              fileName = value;
-            },
-            decoration: InputDecoration(hintText: "Tên file"),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Hủy'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Lưu'),
-              onPressed: () {
-                Navigator.of(context).pop(fileName);
-              },
-            ),
-          ],
-        );
-      });
-}
-
-Future<bool> _promptReplaceExistingFile(BuildContext context) async {
-  return await showDialog<bool>(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Thay thế file?'),
-              content: Text('File đã tồn tại. Bạn có muốn thay thế không?'),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('Không'),
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                ),
-                TextButton(
-                  child: Text('Có'),
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                ),
-              ],
-            );
-          }) ??
-      false;
-}
-
-Future<void> _saveFile(File file, String content) async {
-  await file.writeAsString(content);
-}
-
-Future<String?> _pickSaveLocation() async {
-  final result = await FilePicker.platform.getDirectoryPath();
-  if (result != null) {
-    final status = await Permission.storage.request();
-    if (status.isGranted) {
-      return result;
-    }
-  }
-  return null;
 }
