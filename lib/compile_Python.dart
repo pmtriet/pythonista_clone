@@ -140,6 +140,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
+import 'package:pythonista_clone/file_checker.dart';
 import 'dart:io';
 
 import 'package:pythonista_clone/save_file_diaglog.dart';
@@ -170,7 +171,7 @@ class _MainCompilePython extends State<MainCompilePython> {
   String _error = '';
 
   Future<void> _compileCode(String code) async {
-    final url = Uri.parse('http://127.0.0.1:5000/compile');
+    final url = Uri.parse('http://209.159.153.54:5996/interpreter');
 
     final response = await http.post(
       url,
@@ -286,9 +287,12 @@ class _MainCompilePython extends State<MainCompilePython> {
       File newFile = File(filePath);
       print("filePath: $filePath");
 
-      print("Exist: ${newFile.exists()}");
+      // print("Exist: ${await newFile.exists()}");
 
-      if (await newFile.exists()) {
+      bool fileExists = await FileChecker.checkFileExists(filePath);
+      print(fileExists ? 'File tồn tại.' : 'File không tồn tại.');
+
+      if (newFile.existsSync()) {
         bool replace = await showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -332,6 +336,7 @@ class _MainCompilePython extends State<MainCompilePython> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Python Compiler'),
         // leading: IconButton(
